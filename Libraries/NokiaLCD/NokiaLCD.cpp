@@ -131,10 +131,6 @@ NokiaLCD::NokiaLCD(uint8_t clockPin, uint8_t dataPin, uint8_t modeSelectPin, uin
   this->resetPin = resetPin;
 }
 
-//////////////////////////////
-/// Public
-//////////////////////////////
-
 void NokiaLCD::begin()
 {
   pinMode(clockPin, OUTPUT);
@@ -150,11 +146,11 @@ void NokiaLCD::begin()
   // Set LCD to command mode
   digitalWrite(modeSelectPin, MODE_COMMAND);
   // Set extended commands
-  write(CHIP_CMD_EXTENDED);
-  write(TEMP_COEFFICIENT_2);
+  writeByte(CHIP_CMD_EXTENDED);
+  writeByte(TEMP_COEFFICIENT_2);
   // Set basic commands
-  write(CHIP_CMD_BASIC_H);
-  write(DISP_CONF_NORMAL);
+  writeByte(CHIP_CMD_BASIC_H);
+  writeByte(DISP_CONF_NORMAL);
   // Set LCD to data mode
   digitalWrite(modeSelectPin, MODE_DATA);
   // Reset cursor position and clear display
@@ -166,7 +162,7 @@ void NokiaLCD::clear(void)
   setCursor();
   for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT / FONT_HEIGHT; i++)
   {
-    write(0x00);
+    writeByte(0x00);
   }
 }
 
@@ -174,53 +170,57 @@ void NokiaLCD::setCursor(uint8_t line, uint8_t column)
 {
   line--;
   column--;
-  if (line > 5) line = 0;
-  if (column > 13) column = 0;
+  if (line >= LCD_HEIGHT / FONT_HEIGHT) line = 0;
+  if (column >= 13) column = 0;
+  currentColumn = column * FONT_WIDTH;
   digitalWrite(modeSelectPin, MODE_COMMAND);
-  write(RAM_ADDRESS_Y | line);
-  write(RAM_ADDRESS_X | (column * FONT_WIDTH));
+  writeByte(RAM_ADDRESS_Y | line);
+  writeByte(RAM_ADDRESS_X | currentColumn);
   digitalWrite(modeSelectPin, MODE_DATA);
 }
 
-void NokiaLCD::writeCharacter(uint8_t character)
+void NokiaLCD::writeByte(uint8_t data)
+{
+  shiftOut(dataPin, clockPin, MSBFIRST, data);
+}
+
+void NokiaLCD::writeChar(uint8_t character)
 {
   // Write font
   for (int i = 0; i < 5; i++)
   {
-    write(FONT[character - 0x20][i]);
+    writeByte(FONT[character - 0x20][i]);
   }
   // Write 1 x 8 px whitespace after character
   // to leave some space between letters
   // Spacing below characters is taken care
   // of by font matrix, pixel 8 is never used
-  write(0x00);
+  writeByte(0x00);
+  // Update current column
+  currentColumn += FONT_WIDTH;
+  currentColumn %= LCD_WIDTH;
 }
 
-void NokiaLCD::writeLine(char *line, bool crLf)
+void NokiaLCD::write(char *line)
 {
-  uint8_t cols = 0;
   while (*line)
   {
-    writeCharacter(*line++);
-    cols += FONT_WIDTH;
-  }
-  // Fill rest of line with whitespace if
-  // there are not enough characters.
-  if (crLf && (cols %= LCD_WIDTH))
-  {
-    while (LCD_WIDTH > cols)
-    {
-      write(0x00);
-      cols++;
-    }
+    writeChar(*line++);
   }
 }
 
-//////////////////////////////
-/// Private
-//////////////////////////////
-
-void NokiaLCD::write(uint8_t data)
+void NokiaLCD::writeLine(char *line)
 {
-  shiftOut(dataPin, clockPin, MSBFIRST, data);
+  write(line);
+  // Fill rest of line with whitespace if
+  // there are not enough characters.
+  if (currentColumn)
+  {
+    while (LCD_WIDTH > currentColumn)
+    {
+      writeByte(0x00);
+      currentColumn++;
+    }
+	currentColumn = 0;
+  }
 }

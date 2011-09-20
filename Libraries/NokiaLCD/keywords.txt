@@ -14,9 +14,11 @@ NokiaLCD	KEYWORD1
 
 begin	KEYWORD2
 clear	KEYWORD2
-setCursor	KEYWORD2
-writeCharacter	KEYWORD2
-writeLine	KEYWORD2
+setCursor KEYWORD2
+writeByte KEYWORD2
+writeChar KEYWORD2
+write KEYWORD2
+writeLine KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)

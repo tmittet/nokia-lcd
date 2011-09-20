@@ -59,13 +59,14 @@ public:
   void begin(void);
   void clear(void);
   void setCursor(uint8_t line = 1, uint8_t column = 1);
-  void writeCharacter(uint8_t character);
-  void writeLine(char *line, bool crLf = 1);
+  void writeByte(uint8_t data);
+  void writeChar(uint8_t character);
+  void write(char *line);
+  void writeLine(char *line);
   
 private:
   static const uint8_t FONT[96][5];
-  uint8_t clockPin, dataPin, modeSelectPin, dataSelectPin, resetPin;
-  void write(uint8_t data);
+  uint8_t clockPin, dataPin, modeSelectPin, dataSelectPin, resetPin, currentColumn;
 
 };
 
