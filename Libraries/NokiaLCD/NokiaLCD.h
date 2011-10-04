@@ -65,7 +65,8 @@ public:
   void writeLine(char *line);
   
 private:
-  static const uint8_t FONT[96][5];
+  static const uint8_t FONT[95][5];
+  static const uint8_t FONT_EXT[95][5];
   uint8_t clockPin, dataPin, modeSelectPin, dataSelectPin, resetPin, currentColumn;
 
 };
