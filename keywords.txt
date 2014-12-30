@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map ButtonTracker
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+NokiaLCD	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+clear	KEYWORD2
+setCursor KEYWORD2
+writeByte KEYWORD2
+writeChar KEYWORD2
+write KEYWORD2
+writeLine KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
